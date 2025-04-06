@@ -5,13 +5,13 @@ const cors = require("cors");
 const usersRoutes = require("./src/routes/usersRoute");
 const postsRoutes = require("./src/routes/postRoutes");
 
-const app = express();
+const app = express();  
 
 app.use(cors());
 app.use(express.json());
 
 app.use("/api", usersRoutes)
-app.use("/post", postsRoutes)
+app.use("/posts", postsRoutes)
 
 
 

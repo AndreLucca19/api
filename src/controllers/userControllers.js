@@ -3,48 +3,64 @@ const UserList = require("../models/UserList");
 
 const Lista = new UserList();
 
-const router = {
-    getAllUsers: (req, res) =>{
-        res.json(Lista.getAllUsers());
+Lista.addUser(new User("João", "joao@email.com", 30));
+Lista.addUser(new User("Maria", "maria@email.com", 25));
+Lista.addUser(new User("Carlos", "carlos@email.com", 28));
+
+const userController = {
+    getAllUsers: (req, res) => {
+        const users = Lista.getAllUsers();
+        res.status(200).json(users);
     },
-    getUserById: (req, res) =>{
-        const {id} = req.params;
-        try{
+
+    getUserById: (req, res) => {
+        const { id } = req.params;
+        try {
             const user = Lista.getUserById(id);
-            res.json(user);
-        }catch(error){
-            res.status(404).json({message: error.message});
+            res.status(200).json(user);
+        } catch (error) {
+            res.status(404).json({ message: "Usuário não encontrado", error: error.message });
         }
     },
+
     createUser: (req, res) => {
+        const { name, email, age } = req.body;
+
+        if (!name || !email || !age) {
+            return res.status(400).json({ message: "Preencha todos os campos: name, email e age." });
+        }
+
         try {
-            const { name, email, age } = req.body;
-            if (!name || !email || !age) {
-                throw new Error("Preencha todos os campos para criar um Usuário");
-            }
             const user = new User(name, email, age);
             Lista.addUser(user);
-            return res.status(201).json({ message: "User Criado com sucesso", user });
+            res.status(201).json({ message: "Usuário criado com sucesso", user });
         } catch (error) {
-            res.status(400).json({ message: "Erro ao criar um user", error });
+            res.status(500).json({ message: "Erro interno ao criar usuário", error: error.message });
         }
     },
+
     updateUser: (req, res) => {
+        const { id } = req.params;
+        const updateData = req.body;
+
         try {
-            res.status(200).json(Lista.updateUser(req.params.id, req.body));
+            const updatedUser = Lista.updateUser(id, updateData);
+            res.status(200).json({ message: "Usuário atualizado com sucesso", user: updatedUser });
         } catch (error) {
-            res.status(404).json({ message: "erro ao editar user", error });
+            res.status(404).json({ message: "Erro ao atualizar usuário", error: error.message });
         }
     },
+
     deleteUser: (req, res) => {
+        const { id } = req.params;
+
         try {
-            Lista.deleteUser(req.params.id);
+            Lista.deleteUser(id);
             res.status(200).json({ message: "Usuário deletado com sucesso" });
         } catch (error) {
-            res.status(404).json({ message: "Erro ao deletar usuário", error });
+            res.status(404).json({ message: "Erro ao deletar usuário", error: error.message });
         }
     }
 };
 
-module.exports = router;
-
+module.exports = userController;
